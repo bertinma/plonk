@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "plonk"
-# package-mode = false
+package-mode = true
 version = "0.1.0"
 description = ""
+# authors = [{ name = "marc-antoine", email = "marcantoine.bertin@storyzy.com" }]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -24,9 +25,9 @@ geoopt = ">=0.5.1,<0.6.0"
 einops = ">=0.8.2,<0.9.0"
 torchdiffeq = ">=0.2.5,<0.3.0"
 webdataset = "==0.2.57"
-torch = { version = "2.10.0+cu126", source = "torch_cuda126" }
-torchvision = { version = "0.25.0+cu126", source = "torch_cuda126" }
-torchaudio = { version = "2.10.0+cu126", source = "torch_cuda126" }
+torch = { version = "2.10.0+cu129", source = "torch_cuda129" }
+torchvision = { version = "0.25.0+cu129", source = "torch_cuda129" }
+torchaudio = { version = "2.10.0+cu129", source = "torch_cuda129" }
 wandb = "^0.25.1"
 
 [tool.poetry.group.dev.dependencies]
@@ -34,8 +35,8 @@ black = "^26.3.1"
 isort = "^8.0.1"
 
 [[tool.poetry.source]]
-name = "torch_cuda126"
-url = "https://download.pytorch.org/whl/cu126"
+name = "torch_cuda129"
+url = "https://download.pytorch.org/whl/cu129"
 priority = "explicit"
 
 [build-system]

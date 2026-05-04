@@ -1,17 +1,21 @@
+# Fix for compatibility with Python 3.14
+# /!\ DO NOT REMOVE /!\
+import utils.fix_py314  # noqa: F401 # isort: skip # /!\ DO NOT REMOVE /!\
+
 import os
-import hydra
-import wandb
 from os.path import isfile, join
 from shutil import copyfile
 
+import hydra
 import torch
-
-from omegaconf import OmegaConf
+import wandb
+from callbacks import EMACallback, FixNANinGrad, IncreaseDataEpoch
 from hydra.core.hydra_config import HydraConfig
 from hydra.utils import instantiate
-from pytorch_lightning.callbacks import LearningRateMonitor
 from lightning_fabric.utilities.rank_zero import _get_rank
-from callbacks import EMACallback, FixNANinGrad, IncreaseDataEpoch
+from omegaconf import OmegaConf
+from pytorch_lightning.callbacks import LearningRateMonitor
+
 from plonk.models.module import DiffGeolocalizer
 
 torch.set_float32_matmul_precision("high")  # TODO do we need that?

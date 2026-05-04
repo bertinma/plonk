@@ -50,8 +50,8 @@ def flush_batch(batch_images, batch_rows, model, processor, device, sink, image_
     inputs = processor(images=batch_images, return_tensors="pt").to(device)
     with torch.no_grad():
         outputs = model(**inputs)
-    embeddings = outputs.pooler_output.cpu().numpy()
-
+    # embeddings = outputs.pooler_output.cpu().numpy()
+    embeddings = outputs.last_hidden_state[:, 0].cpu().numpy()
     written = 0
     for emb, row in zip(embeddings, batch_rows):
         img_id = str(row["id"])

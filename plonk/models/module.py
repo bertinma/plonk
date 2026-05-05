@@ -1,17 +1,19 @@
+import copy
 from typing import Any
+
+import numpy as np
+import pandas as pd
 import pytorch_lightning as L
 import torch
 import torch.nn as nn
+from geoopt import Euclidean, ProductManifold
 from hydra.utils import instantiate
-import copy
-import pandas as pd
-import numpy as np
-from tqdm import tqdm
-from plonk.utils.manifolds import Sphere
 from torch.func import jacrev, vjp, vmap
 from torchdiffeq import odeint
-from geoopt import ProductManifold, Euclidean
+from tqdm import tqdm
+
 from plonk.models.samplers.riemannian_flow_sampler import ode_riemannian_flow_sampler
+from plonk.utils.manifolds import Sphere
 
 
 class DiffGeolocalizer(L.LightningModule):

@@ -1,13 +1,15 @@
-import streamlit as st
-import pandas as pd
-from PIL import Image
-import torch
-from plonk import PlonkPipeline
+from io import BytesIO
 from pathlib import Path
-from streamlit_extras.colored_header import colored_header
+
+import pandas as pd
 import plotly.express as px
 import requests
-from io import BytesIO
+import streamlit as st
+import torch
+from PIL import Image
+from streamlit_extras.colored_header import colored_header
+
+from plonk import PlonkPipeline
 
 # Set page config
 st.set_page_config(

@@ -1,20 +1,20 @@
-import os, sys
+import os
+import sys
 
 # Ajouter le répertoire racine au chemin
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 sys.path.append(root_dir)
 
-import torch
-from plonk.utils.image_processing import CenterCrop
-from plonk.data.extract_embeddings.dataset_with_path import ImageWithPathDataset
-import torch
-from torchvision import transforms
+import argparse
 from pathlib import Path
 
-
-from tqdm import tqdm
 import numpy as np
-import argparse
+import torch
+from torchvision import transforms
+from tqdm import tqdm
+
+from plonk.data.extract_embeddings.dataset_with_path import ImageWithPathDataset
+from plonk.utils.image_processing import CenterCrop
 
 parser = argparse.ArgumentParser()
 parser.add_argument(

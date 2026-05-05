@@ -1,6 +1,7 @@
 import torch
+from torch.func import jacrev, jvp, vjp, vmap
+
 from plonk.utils.manifolds import Sphere, geodesic
-from torch.func import vjp, jvp, vmap, jacrev
 
 
 class DDPMLoss:

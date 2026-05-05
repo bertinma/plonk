@@ -1,8 +1,9 @@
-from pytorch_lightning import Callback
+import contextlib
 import copy
 import itertools
+
 import torch
-import contextlib
+from pytorch_lightning import Callback
 from torch.distributed.fsdp import FullyShardedDataParallel
 
 

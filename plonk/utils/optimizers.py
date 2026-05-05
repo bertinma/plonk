@@ -1,8 +1,9 @@
 """Lamb optimizer."""
 
+import math
+
 import torch
 from torch.optim import Optimizer
-import math
 
 
 class Lamb(Optimizer):

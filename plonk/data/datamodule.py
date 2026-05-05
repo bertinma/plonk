@@ -1,11 +1,11 @@
-import pytorch_lightning as L
-from torch.utils.data import DataLoader, random_split
-import torch
-import time
-import webdataset as wds
-from torch.utils.data import default_collate
 import math
+import time
+
+import pytorch_lightning as L
+import torch
+import webdataset as wds
 from PIL import Image
+from torch.utils.data import DataLoader, default_collate, random_split
 
 
 class ImageDataModule(L.LightningDataModule):

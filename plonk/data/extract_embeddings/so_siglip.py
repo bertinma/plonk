@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 
 import torch.amp
 
@@ -6,14 +7,15 @@ import torch.amp
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 sys.path.append(root_dir)
 
-from PIL import Image
 from pathlib import Path
-import torch
-from transformers import AutoProcessor, AutoModelForZeroShotImageClassification
-import numpy as np
-from tqdm import tqdm
-from plonk.data.extract_embeddings.dataset_with_path import ImageWithPathDataset
 
+import numpy as np
+import torch
+from PIL import Image
+from tqdm import tqdm
+from transformers import AutoModelForZeroShotImageClassification, AutoProcessor
+
+from plonk.data.extract_embeddings.dataset_with_path import ImageWithPathDataset
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = AutoModelForZeroShotImageClassification.from_pretrained(

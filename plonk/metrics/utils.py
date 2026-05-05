@@ -1,6 +1,6 @@
-import torch
-import reverse_geocoder
 import numpy as np
+import reverse_geocoder
+import torch
 
 
 def haversine(pred, gt):

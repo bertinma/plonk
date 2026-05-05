@@ -13,12 +13,13 @@ class ClipTransform(object):
 if __name__ == "__main__":
     # sanity check
     import glob
-    import torchvision.transforms as transforms
-    from torchvision.utils import save_image
-    from omegaconf import DictConfig, OmegaConf
-    from hydra.utils import instantiate
+
     import torch
+    import torchvision.transforms as transforms
+    from hydra.utils import instantiate
+    from omegaconf import DictConfig, OmegaConf
     from PIL import Image
+    from torchvision.utils import save_image
 
     fast_clip_config = OmegaConf.load(
         "./configs/dataset/train_transform/fast_clip.yaml"

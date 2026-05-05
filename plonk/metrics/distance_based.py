@@ -1,11 +1,11 @@
+import numpy as np
 import torch
-
 from metrics.utils import haversine, reverse
 from sklearn.metrics import pairwise_distances
 from torchmetrics import Metric
-import numpy as np
-from plonk.utils.kde import BatchedKDE
 from tqdm import tqdm
+
+from plonk.utils.kde import BatchedKDE
 
 
 class HaversineMetrics(Metric):

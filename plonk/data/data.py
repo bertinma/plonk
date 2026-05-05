@@ -1,28 +1,28 @@
+import ctypes
+import json
+import multiprocessing as mp
+import pickle
+import random
+import time
+from os.path import isfile, join
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import torch
-import random
-import pickle
-from os.path import join
-from os.path import isfile
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
+from torchvision import transforms
 from torchvision.transforms import (
-    Compose,
-    RandomCrop,
     CenterCrop,
+    Compose,
+    GaussianBlur,
+    RandomCrop,
     RandomHorizontalFlip,
     ToTensor,
 )
-import time
-from torchvision.transforms import GaussianBlur
-from torchvision import transforms
-from pathlib import Path
-import json
 from tqdm import tqdm
-import multiprocessing as mp
-import ctypes
 
 
 def normalize(lat, lon):
@@ -705,8 +705,8 @@ class TextContrastiveOSV5M(OSV5M):
         return output
 
 
-import os
 import json
+import os
 
 
 class Baseline(Dataset):

@@ -50,12 +50,16 @@ trainer:
   check_val_every_n_epoch: null
 
 logger:
-  _target_: pytorch_lightning.loggers.WandbLogger
-  save_dir: ${root_dir}/plonk
-  name: ${experiment_name}${logger_suffix}
-  project: diff_plonk
-  log_model: False
-  offline: False
+  _target_: pytorch_lightning.loggers.MLFlowLogger
+  experiment_name: diff_plonk
+  tracking_uri: file:${root_dir}/plonk/mlruns
+  workspace_name: geoloc
+  run_name: ${experiment_name}${logger_suffix}
+  log_model: True
+  tags:
+    mode: ${mode}
+    dataset: ${dataset.name}
+    model: ${model.name}
 
 checkpoints:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
@@ -66,6 +70,7 @@ checkpoints:
   save_top_k: 3
   every_n_epochs: 1
   enable_version_counter: False
+  save_on_train_epoch_end: True
 
 progress_bar:
   _target_: pytorch_lightning.callbacks.TQDMProgressBar

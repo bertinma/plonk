@@ -1,6 +1,7 @@
 import torch
-from plonk.utils.manifolds import Sphere
 from tqdm.auto import tqdm
+
+from plonk.utils.manifolds import Sphere
 
 
 def riemannian_flow_sampler(

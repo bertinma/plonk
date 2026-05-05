@@ -1,6 +1,7 @@
 """Copyright (c) Meta Platforms, Inc. and affiliates."""
 
 import math
+
 import torch
 from geoopt.manifolds import Sphere as geoopt_Sphere
 

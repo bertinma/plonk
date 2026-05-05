@@ -1,9 +1,11 @@
 import glob
 import json
 import logging
+import math
 import os
 import random
 from collections import OrderedDict
+from functools import partial
 from multiprocessing import Value
 from pathlib import Path
 
@@ -22,8 +24,6 @@ from webdataset.tariterators import (
     url_opener,
     valid_sample,
 )
-from functools import partial
-import math
 
 
 class GPSWebdataset(wds.DataPipeline):

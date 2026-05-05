@@ -1,6 +1,7 @@
 import logging
-from pytorch_lightning.callbacks import Callback
+
 import torch
+from pytorch_lightning.callbacks import Callback
 
 log = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 import os
+
 import torch
 from metrics.utils import haversine
-
 from torchmetrics import Metric
 
 

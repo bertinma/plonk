@@ -1,10 +1,11 @@
-import torch.nn as nn
-from plonk.models.positional_embeddings import FourierEmbedding, PositionalEmbedding
-from plonk.models.networks.transformers import FusedMLP
-import torch
-import torch.nn.functional as F
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from einops import rearrange
+
+from plonk.models.networks.transformers import FusedMLP
+from plonk.models.positional_embeddings import FourierEmbedding, PositionalEmbedding
 
 
 class TimeEmbedder(nn.Module):

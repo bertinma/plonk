@@ -2,11 +2,12 @@
 Adapted from https://github.com/nv-nguyen/template-pose/blob/main/src/utils/augmentation.py
 """
 
-from torchvision import transforms
-from PIL import ImageEnhance, ImageFilter, Image
-import numpy as np
-import random
 import logging
+import random
+
+import numpy as np
+from PIL import Image, ImageEnhance, ImageFilter
+from torchvision import transforms
 from torchvision.transforms import RandomResizedCrop, ToTensor
 
 
@@ -191,12 +192,13 @@ class ImageAugmentation:
 if __name__ == "__main__":
     # sanity check
     import glob
-    import torchvision.transforms as transforms
-    from torchvision.utils import save_image
-    from omegaconf import DictConfig, OmegaConf
-    from hydra.utils import instantiate
+
     import torch
+    import torchvision.transforms as transforms
+    from hydra.utils import instantiate
+    from omegaconf import DictConfig, OmegaConf
     from PIL import Image
+    from torchvision.utils import save_image
 
     augmentation_config = OmegaConf.load(
         "./configs/dataset/train_transform/augmentation.yaml"

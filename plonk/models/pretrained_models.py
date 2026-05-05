@@ -1,10 +1,11 @@
-import sys
+import argparse
 import os
+import sys
+
+import torch
+from huggingface_hub import PyTorchModelHubMixin
 
 from plonk.models.networks.mlp import GeoAdaLNMLP
-from huggingface_hub import PyTorchModelHubMixin
-import torch
-import argparse
 
 models_overrides = {
     "YFCC100M_geoadalnmlp_r3_small_sigmoid_flow_riemann_10M_10M": "YFCC100M_geoadalnmlp_r3_small_sigmoid_flow_riemann",

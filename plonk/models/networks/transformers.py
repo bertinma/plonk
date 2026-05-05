@@ -1,13 +1,15 @@
-import torch
-import torch.nn as nn
-from torch import Tensor
 import math
 
-from plonk.models.positional_embeddings import PositionalEmbedding, FourierEmbedding
+import torch
+import torch.nn as nn
 from einops import rearrange
+from torch import Tensor
+
+from plonk.models.positional_embeddings import FourierEmbedding, PositionalEmbedding
 
 torch.fx.wrap("rearrange")
-from typing import Tuple, Optional
+from typing import Optional, Tuple
+
 from einops._torch_specific import allow_ops_in_compiled_graph  # requires einops>=0.6.1
 
 allow_ops_in_compiled_graph()

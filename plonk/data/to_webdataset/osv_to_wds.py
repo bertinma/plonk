@@ -14,6 +14,7 @@ from PIL import Image
 from torchvision import transforms
 from tqdm import tqdm
 from webdataset.autodecode import ImageHandler
+
 from plonk.utils.image_processing import CenterCrop
 
 print("Loading dinov2")

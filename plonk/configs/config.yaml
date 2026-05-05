@@ -60,10 +60,10 @@ logger:
 checkpoints:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
   dirpath: ${root_dir}/plonk/checkpoints/${experiment_name}
-  filename: 'epoch_{epoch}'
+  filename: "epoch_{epoch}"
   monitor: val/loss
   save_last: True
-  save_top_k: 0
+  save_top_k: 3
   every_n_epochs: 1
   enable_version_counter: False
 
@@ -72,12 +72,12 @@ progress_bar:
   refresh_rate: ${computer.progress_bar_refresh_rate}
 
 data_dir: ${root_dir}/plonk/datasets
-root_dir:  ${hydra:runtime.cwd}
+root_dir: ${hydra:runtime.cwd}
 experiment_name: ${dataset.name}_${model.name}_${experiment_name_suffix}
 experiment_name_suffix: base
-logger_suffix:  ""
+logger_suffix: ""
 mode: train # change that to eval to do the testing
-areas: ['country', 'region', 'sub-region', 'city']
+areas: [ "country", "region", "sub-region", "city" ]
 class_name: null
 streetclip: False
 blur: False

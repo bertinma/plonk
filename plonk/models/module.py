@@ -37,7 +37,7 @@ class DiffGeolocalizer(L.LightningModule):
         )
         self.val_metrics = instantiate(cfg.val_metrics)
         self.test_metrics = instantiate(cfg.test_metrics)
-        self.manifold = instantiate(cfg.manifold) if hasattr(cfg, "manifold") else None
+        self.manifold = instantiate(cfg.manifold)
 
         self.interpolant = cfg.interpolant
 
@@ -68,12 +68,8 @@ class DiffGeolocalizer(L.LightningModule):
                 print(no_grad)
 
     def on_validation_start(self):
-        self.validation_generator = torch.Generator(device=self.device).manual_seed(
-            3407
-        )
-        self.validation_generator_ema = torch.Generator(device=self.device).manual_seed(
-            3407
-        )
+        self.validation_generator = torch.Generator(device=self.device).manual_seed(3407)
+        self.validation_generator_ema = torch.Generator(device=self.device).manual_seed(3407)
 
     def validation_step(self, batch, batch_idx):
         batch = self.data_preprocessing(batch)
@@ -108,6 +104,25 @@ class DiffGeolocalizer(L.LightningModule):
                 on_epoch=True,
                 batch_size=batch_size,
             )
+
+        x_N = self.manifold.random_base(
+            batch_size,
+            self.input_dim,
+            device=self.device,
+        )
+
+        x_N = x_N.reshape(batch_size, self.input_dim)
+        cond = batch[self.cfg.cond_preprocessing.output_key]
+
+        samples = self.sample(
+            x_N=x_N,
+            cond=cond,
+            stage="val",
+            generator=self.test_generator,
+            cfg=self.cfg.cfg_rate,
+        )
+        self.val_metrics.update({"gps": samples}, batch)
+
         # nll = -self.compute_exact_loglikelihood(batch).mean()
         # self.log(
         #     "val/nll",
@@ -118,16 +133,16 @@ class DiffGeolocalizer(L.LightningModule):
         #     batch_size=batch_size,
         # )
 
-    # def on_validation_epoch_end(self):
-    #     metrics = self.val_metrics.compute()
-    #     for metric_name, metric_value in metrics.items():
-    #         self.log(
-    #             f"val/{metric_name}",
-    #             metric_value,
-    #             sync_dist=True,
-    #             on_step=False,
-    #             on_epoch=True,
-    #         )
+    def on_validation_epoch_end(self):
+        metrics = self.val_metrics.compute()
+        for metric_name, metric_value in metrics.items():
+            self.log(
+                f"val/{metric_name}",
+                metric_value,
+                sync_dist=True,
+                on_step=False,
+                on_epoch=True,
+            )
 
     def on_test_start(self):
         self.test_generator = torch.Generator(device=self.device).manual_seed(3407)
@@ -208,9 +223,7 @@ class DiffGeolocalizer(L.LightningModule):
         batch_swarm = {"gps": samples, "emb": cond}
         nll_batch = -self.compute_exact_loglikelihood(batch_swarm, cfg=0)
         nll_batch = nll_batch.view(batch_size, num_sample_per_cond, -1)
-        nll_best = nll_batch[
-            torch.arange(batch_size), nll_batch.argmin(dim=1).squeeze(1)
-        ]
+        nll_best = nll_batch[torch.arange(batch_size), nll_batch.argmin(dim=1).squeeze(1)]
         self.log(
             "test/best_nll",
             nll_best.mean(),
@@ -243,32 +256,20 @@ class DiffGeolocalizer(L.LightningModule):
     def configure_optimizers(self):
         if self.cfg.optimizer.exclude_ln_and_biases_from_weight_decay:
             parameters_names_wd = get_parameter_names(self.network, [nn.LayerNorm])
-            parameters_names_wd = [
-                name for name in parameters_names_wd if "bias" not in name
-            ]
+            parameters_names_wd = [name for name in parameters_names_wd if "bias" not in name]
             optimizer_grouped_parameters = [
                 {
-                    "params": [
-                        p
-                        for n, p in self.network.named_parameters()
-                        if n in parameters_names_wd
-                    ],
+                    "params": [p for n, p in self.network.named_parameters() if n in parameters_names_wd],
                     "weight_decay": self.cfg.optimizer.optim.weight_decay,
                     "layer_adaptation": True,
                 },
                 {
-                    "params": [
-                        p
-                        for n, p in self.network.named_parameters()
-                        if n not in parameters_names_wd
-                    ],
+                    "params": [p for n, p in self.network.named_parameters() if n not in parameters_names_wd],
                     "weight_decay": 0.0,
                     "layer_adaptation": False,
                 },
             ]
-            optimizer = instantiate(
-                self.cfg.optimizer.optim, optimizer_grouped_parameters
-            )
+            optimizer = instantiate(self.cfg.optimizer.optim, optimizer_grouped_parameters)
         else:
             optimizer = instantiate(self.cfg.optimizer.optim, self.network.parameters())
         if "lr_scheduler" in self.cfg:
@@ -295,9 +296,7 @@ class DiffGeolocalizer(L.LightningModule):
         if x_N is None:
             assert batch_size is not None
             if isinstance(self.manifold, Sphere):
-                x_N = self.manifold.random_base(
-                    batch_size, self.input_dim, device=self.device
-                )
+                x_N = self.manifold.random_base(batch_size, self.input_dim, device=self.device)
                 x_N = x_N.reshape(batch_size, self.input_dim)
             else:
                 x_N = torch.randn(batch_size, self.input_dim, device=self.device)
@@ -334,10 +333,7 @@ class DiffGeolocalizer(L.LightningModule):
         if return_trajectories:
             return (
                 self.postprocessing(output[0]) if postprocessing else output[0],
-                [
-                    self.postprocessing(frame) if postprocessing else frame
-                    for frame in output[1]
-                ],
+                [self.postprocessing(frame) if postprocessing else frame for frame in output[1]],
             )
         else:
             return self.postprocessing(output) if postprocessing else output
@@ -359,9 +355,7 @@ class DiffGeolocalizer(L.LightningModule):
             i = -1
             for i in range(x_N.shape[0] // sampling_batch_size):
                 x_N_batch = x_N[i * sampling_batch_size : (i + 1) * sampling_batch_size]
-                cond_batch = cond[
-                    i * sampling_batch_size : (i + 1) * sampling_batch_size
-                ]
+                cond_batch = cond[i * sampling_batch_size : (i + 1) * sampling_batch_size]
                 out, trajectories = self.sample(
                     cond=cond_batch,
                     x_N=x_N_batch,
@@ -395,9 +389,7 @@ class DiffGeolocalizer(L.LightningModule):
             i = -1
             for i in range(x_N.shape[0] // sampling_batch_size):
                 x_N_batch = x_N[i * sampling_batch_size : (i + 1) * sampling_batch_size]
-                cond_batch = cond[
-                    i * sampling_batch_size : (i + 1) * sampling_batch_size
-                ]
+                cond_batch = cond[i * sampling_batch_size : (i + 1) * sampling_batch_size]
                 out = self.sample(
                     cond=cond_batch,
                     x_N=x_N_batch,
@@ -447,9 +439,7 @@ class DiffGeolocalizer(L.LightningModule):
         if data_preprocessing:
             batch = self.data_preprocessing(batch)
         batch = self.cond_preprocessing(batch)
-        timesteps = self.inference_noise_scheduler(
-            torch.linspace(0, t1, 2).to(batch["x_0"])
-        )
+        timesteps = self.inference_noise_scheduler(torch.linspace(0, t1, 2).to(batch["x_0"]))
         with torch.inference_mode(mode=False):
 
             def odefunc(t, tensor):
@@ -473,9 +463,7 @@ class DiffGeolocalizer(L.LightningModule):
                             "gamma": gamma.reshape(-1),
                         }
                         model_output_uncond = self.ema_model(batch_vecfield_uncond)
-                        model_output = model_output_cond + cfg * (
-                            model_output_cond - model_output_uncond
-                        )
+                        model_output = model_output_cond + cfg * (model_output_cond - model_output_uncond)
 
                     else:
                         batch_vecfield = {
@@ -486,15 +474,11 @@ class DiffGeolocalizer(L.LightningModule):
                         model_output = self.ema_model(batch_vecfield)
 
                     if self.interpolant == "flow_matching":
-                        d_gamma = self.inference_noise_scheduler.derivative(t).reshape(
-                            -1, 1
-                        )
+                        d_gamma = self.inference_noise_scheduler.derivative(t).reshape(-1, 1)
                         return d_gamma * model_output
                     elif self.interpolant == "diffusion":
                         alpha_t = self.inference_noise_scheduler.alpha(t).reshape(-1, 1)
-                        return (
-                            -1 / 2 * (alpha_t * x - torch.abs(alpha_t) * model_output)
-                        )
+                        return -1 / 2 * (alpha_t * x - torch.abs(alpha_t) * model_output)
                     else:
                         raise ValueError(f"Unknown interpolant {self.interpolant}")
 
@@ -512,9 +496,7 @@ class DiffGeolocalizer(L.LightningModule):
             with torch.no_grad():
                 if False and isinstance(self.manifold, Sphere):
                     print("Riemannian flow sampler")
-                    product_man = ProductManifold(
-                        (self.manifold, self.input_dim), (Euclidean(), 1)
-                    )
+                    product_man = ProductManifold((self.manifold, self.input_dim), (Euclidean(), 1))
                     state0 = ode_riemannian_flow_sampler(
                         odefunc,
                         state1,
@@ -540,9 +522,7 @@ class DiffGeolocalizer(L.LightningModule):
         else:
             logp0 = (
                 -1 / 2 * (x_0**2).sum(dim=-1)
-                - self.input_dim
-                * torch.log(torch.tensor(2 * np.pi, device=x_0.device))
-                / 2
+                - self.input_dim * torch.log(torch.tensor(2 * np.pi, device=x_0.device)) / 2
             )
         print(f"nfe: {nfe[0]}")
         logp1 = logp0 + logdetjac
@@ -633,12 +613,8 @@ class VonFisherGeolocalizer(L.LightningModule):
                 print(no_grad)
 
     def on_validation_start(self):
-        self.validation_generator = torch.Generator(device=self.device).manual_seed(
-            3407
-        )
-        self.validation_generator_ema = torch.Generator(device=self.device).manual_seed(
-            3407
-        )
+        self.validation_generator = torch.Generator(device=self.device).manual_seed(3407)
+        self.validation_generator_ema = torch.Generator(device=self.device).manual_seed(3407)
 
     def validation_step(self, batch, batch_idx):
         batch = self.data_preprocessing(batch)
@@ -709,32 +685,20 @@ class VonFisherGeolocalizer(L.LightningModule):
     def configure_optimizers(self):
         if self.cfg.optimizer.exclude_ln_and_biases_from_weight_decay:
             parameters_names_wd = get_parameter_names(self.network, [nn.LayerNorm])
-            parameters_names_wd = [
-                name for name in parameters_names_wd if "bias" not in name
-            ]
+            parameters_names_wd = [name for name in parameters_names_wd if "bias" not in name]
             optimizer_grouped_parameters = [
                 {
-                    "params": [
-                        p
-                        for n, p in self.network.named_parameters()
-                        if n in parameters_names_wd
-                    ],
+                    "params": [p for n, p in self.network.named_parameters() if n in parameters_names_wd],
                     "weight_decay": self.cfg.optimizer.optim.weight_decay,
                     "layer_adaptation": True,
                 },
                 {
-                    "params": [
-                        p
-                        for n, p in self.network.named_parameters()
-                        if n not in parameters_names_wd
-                    ],
+                    "params": [p for n, p in self.network.named_parameters() if n not in parameters_names_wd],
                     "weight_decay": 0.0,
                     "layer_adaptation": False,
                 },
             ]
-            optimizer = instantiate(
-                self.cfg.optimizer.optim, optimizer_grouped_parameters
-            )
+            optimizer = instantiate(self.cfg.optimizer.optim, optimizer_grouped_parameters)
         else:
             optimizer = instantiate(self.cfg.optimizer.optim, self.network.parameters())
         if "lr_scheduler" in self.cfg:

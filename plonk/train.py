@@ -28,17 +28,18 @@ def load_model(cfg, dict_config, callbacks, logger):
     """Load or create DiffGeolocalizer model and trainer."""
     directory = cfg.checkpoints.dirpath
 
-    # Log the complete Hydra configuration as hyperparameters
-    logger.log_hyperparams(dict_config)
-
-    ckpt_path, checkpoint_exists = load_checkpoint_if_exists(directory)
+    ckpt_path, checkpoint_exists = load_checkpoint_if_exists(directory) if cfg.resume else (None, False)
 
     if checkpoint_exists and ckpt_path is not None:
-        model = DiffGeolocalizer.load_from_checkpoint(ckpt_path, cfg=cfg.model)
+        model = DiffGeolocalizer.load_from_checkpoint(ckpt_path, cfg=cfg.model, weights_only=False)
     else:
         model = DiffGeolocalizer(cfg.model)
 
     trainer = create_trainer(cfg, logger, callbacks)
+
+    # log_hyperparams must be called after trainer is created so the MLflow run is active
+    logger.log_hyperparams(dict_config)
+
     return trainer, model, ckpt_path
 
 

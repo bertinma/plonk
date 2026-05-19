@@ -120,7 +120,7 @@ class DiffGeolocalizer(L.LightningModule):
             x_N=x_N,
             cond=cond,
             stage="val",
-            generator=self.test_generator,
+            generator=self.validation_generator,
             cfg=self.cfg.cfg_rate,
         )
         self.val_metrics.update({"gps": samples}, batch)

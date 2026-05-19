@@ -26,22 +26,24 @@ def configure_mlflow_logger(cfg) -> MLFlowLogger:
     Returns:
         Configured MLFlowLogger instance
     """
-    mlflow.set_tracking_uri(cfg.logger.mlflow.tracking_uri)
+    mlflow.set_tracking_uri(cfg.logger.tracking_uri)
 
-    if hasattr(cfg.logger.mlflow, "workspace_name"):
-        mlflow.set_workspace(cfg.logger.mlflow.workspace_name)
+    if hasattr(cfg.logger, "workspace_name"):
+        mlflow.set_workspace(cfg.logger.workspace_name)
 
-    if mlflow.get_experiment_by_name(cfg.logger.mlflow.experiment_name) is None:
-        mlflow.create_experiment(cfg.logger.mlflow.experiment_name)
-    mlflow.set_experiment(cfg.logger.mlflow.experiment_name)
+    if mlflow.get_experiment_by_name(cfg.logger.experiment_name) is None:
+        mlflow.create_experiment(cfg.logger.experiment_name)
+    mlflow.set_experiment(cfg.logger.experiment_name)
 
-    if hasattr(cfg.logger.mlflow, "system_metrics_sampling_interval"):
-        mlflow.set_system_metrics_sampling_interval(cfg.logger.mlflow.system_metrics_sampling_interval)
+    if hasattr(cfg.logger, "system_metrics_sampling_interval"):
+        mlflow.set_system_metrics_sampling_interval(cfg.logger.system_metrics_sampling_interval)
 
     return MLFlowLogger(
-        experiment_name=cfg.logger.mlflow.experiment_name,
-        tracking_uri=cfg.logger.mlflow.tracking_uri,
-        log_model=cfg.logger.mlflow.log_model,
+        experiment_name=cfg.logger.experiment_name,
+        tracking_uri=cfg.logger.tracking_uri,
+        run_name=cfg.logger.run_name,
+        log_model=cfg.logger.log_model,
+        tags=dict(cfg.logger.tags) if hasattr(cfg.logger, "tags") else None,
     )
 
 

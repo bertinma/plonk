@@ -51,10 +51,10 @@ trainer:
 
 logger:
   _target_: pytorch_lightning.loggers.MLFlowLogger
-  experiment_name: diff_plonk
-  tracking_uri: file:${root_dir}/plonk/mlruns
-  workspace_name: geoloc
+  experiment_name: plonk
+  tracking_uri: http://mlflow.trusted.lan/
   run_name: ${experiment_name}${logger_suffix}
+  workspace_name: geoloc
   log_model: True
   tags:
     mode: ${mode}
@@ -82,7 +82,8 @@ experiment_name: ${dataset.name}_${model.name}_${experiment_name_suffix}
 experiment_name_suffix: base
 logger_suffix: ""
 mode: train # change that to eval to do the testing
-areas: [ "country", "region", "sub-region", "city" ]
+resume: false # set to true to resume from last.ckpt if it exists
+areas: ["country", "region", "sub-region", "city"]
 class_name: null
 streetclip: False
 blur: False
